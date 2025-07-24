@@ -2,12 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsString,
-  Matches,
   MaxLength,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { removeAccents } from '../../../shared/utils/common-utils';
-import { ALLOWED_TEXT_REGEX } from '../../../shared/constants/constants';
+import { normalizeText } from '../../../shared/utils/common-utils';
 
 /** 
  * DTO para la realizacion de preguntas
@@ -22,9 +20,6 @@ export class QuestionDto{
   @MaxLength(300, {
     message: 'El campo $property no puede tener más de $constraint1 caracteres.',
   })
-  @Matches(ALLOWED_TEXT_REGEX, {
-    message: 'El campo $property solo debe contener letras y números.',
-  })
-  @Transform(({ value }) => removeAccents(value.trim().toLowerCase()))
+  @Transform(({ value }) => normalizeText(value.trim().toLowerCase()))
   readonly question: string;
 }

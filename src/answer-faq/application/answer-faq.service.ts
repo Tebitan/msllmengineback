@@ -3,7 +3,7 @@ import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientRestService } from '../infrastructure/http/rest/client-rest.service';
 import { AssistantAdapter } from '../infrastructure/ai/assistant/assistant-adapter.service';
 import { CacheAdapterService } from '../infrastructure/cache/cache-adapter.service';
-import { removeAccents } from '../../shared/utils/common-utils';
+import { normalizeText } from '../../shared/utils/common-utils';
 import { BusinessExceptionDto } from '../../shared/domain/business-exceptions.dto';
 import { ApiResponseDto } from '../../shared/domain/api-response.dto';
 import { QuestionDto } from '../domain/dto/answer-faq.dto';
@@ -82,17 +82,7 @@ export class AnswerFaqService {
      * @returns HttpResponse<ApiResponseDto>
      */
     public async getAnswerBack(question: string): Promise<HttpResponse<ApiResponseDto>> {
-        return this.clientRestService.getFaqs(this.normalizeQuestion(question));
-    }
-
-    /**
-     * nomalizeQuestion
-     * @description Aplica formato a la pregunta 
-     * @param question Pregunta del cliente
-     * @returns string
-     */
-    public normalizeQuestion(question: string): string {
-        return removeAccents(question.trim().toLowerCase());
+        return this.clientRestService.getFaqs(normalizeText(question));
     }
 
     /**
@@ -163,7 +153,7 @@ export class AnswerFaqService {
      * @returns ApiResponseDto|undefined
      */
     public async getCache(question: string): Promise<ApiResponseDto | undefined> {
-        return this.cacheAdapterService.getFaqConcurrent(this.normalizeQuestion(question));
+        return this.cacheAdapterService.getFaqConcurrent(normalizeText(question));
     }
 
     /**
@@ -174,6 +164,6 @@ export class AnswerFaqService {
      * @returns void
      */
     public async saveCache(question: string, response: ApiResponseDto): Promise<void> {
-        return this.cacheAdapterService.setFaqConcurrent(this.normalizeQuestion(question), response);
+        return this.cacheAdapterService.setFaqConcurrent(normalizeText(question), response);
     }
 }
